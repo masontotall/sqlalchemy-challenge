@@ -105,9 +105,52 @@ def tobs():
 
     return jsonify(tobs_data)
 
+@app.route("/api/v1.0/<start>")
+def start(start):
+    session = Session(engine)
 
+    query_result = session.query(func.min(Measurement.tobs),
+             func.max(Measurement.tobs),
+             func.avg(Measurement.tobs)).\
+             filter(Measurement.date >= start).all()
 
-    
+    session.close()
+
+    #create dictionary and append to a list then jsonify
+
+    start_tobs = []
+    for min, max, avg in query_result:
+        start_tobs_dict = {}
+        start_tobs_dict["min_temp"] = min
+        start_tobs_dict["max_temp"] = max
+        start_tobs_dict["avg_temp"] = avg
+        start_tobs.append(start_tobs_dict)
+
+    return jsonify(start_tobs)
+
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start, end):
+    session = Session(engine)
+
+    query_result = session.query(func.min(Measurement.tobs),
+             func.max(Measurement.tobs),
+             func.avg(Measurement.tobs)).\
+             filter(Measurement.date >= start).\
+             filter(Measurement.date <= end).all()
+
+    session.close()
+
+    #create dictionary, append to list, jsonify
+
+    start_end_tobs = []
+    for min, max, avg in query_result:
+        start_end_tobs_dict = {}
+        start_end_tobs_dict["min_temp"] = min
+        start_end_tobs_dict["max_temp"] = max
+        start_end_tobs_dict["avg_temp"] = avg
+        start_end_tobs.append(start_end_tobs_dict)
+
+    return jsonify(start_end_tobs)
 
 
 
